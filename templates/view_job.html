@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - {{ job.company }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="company-avatar" style="width: 70px; height: 70px; font-size: 1.6rem;">{{ job.company[0]|upper }}</div>
+                    <div>
+                        <h2 class="fw-bold mb-1">{{ job.title }}</h2>
+                        <p class="text-muted mb-1"><i class="fas fa-building me-1"></i>{{ job.company }}</p>
+                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</small>
+                    </div>
+                </div>
+                {% if session.logged_in and session.user_id == job.employer_id %}
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-warning btn-sm" style="color: white;">
+                            <i class="fas fa-edit me-1"></i> Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_job', job_id=job.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this job?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Meta badges -->
+            <div class="d-flex gap-2 flex-wrap mb-4">
+                <span class="badge" style="background: #e0e7ff; color: #4338ca; font-size: 0.85rem; padding: 8px 16px;">
+                    <i class="fas fa-clock me-1"></i>{{ job.job_type }}
+                </span>
+                <span class="badge" style="background: #d1fae5; color: #065f46; font-size: 0.85rem; padding: 8px 16px;">
+                    <i class="fas fa-tag me-1"></i>{{ job.category }}
+                </span>
+                {% if job.salary %}
+                    <span class="badge" style="background: #fef3c7; color: #b45309; font-size: 0.85rem; padding: 8px 16px;">
+                        <i class="fas fa-dollar-sign me-1"></i>{{ job.salary }}
+                    </span>
+                {% endif %}
+                {% if not job.is_active %}
+                    <span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 0.85rem; padding: 8px 16px;">
+                        <i class="fas fa-times-circle me-1"></i>Closed
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Description</h5>
+                    <p style="white-space: pre-wrap; line-height: 1.8; margin: 0;">{{ job.description }}</p>
+                </div>
+            </div>
+
+            {% if job.requirements %}
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-list-check text-primary me-2"></i>Requirements</h5>
+                        <p style="white-space: pre-wrap; line-height: 1.8; margin: 0;">{{ job.requirements }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Employer info -->
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-user-tie text-primary me-2"></i>About the Employer</h5>
+                    {% if job.employer.company_name %}
+                        <h6 class="fw-bold mb-1">{{ job.employer.company_name }}</h6>
+                    {% endif %}
+                    {% if job.employer.company_description %}
+                        <p class="text-muted mb-0">{{ job.employer.company_description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions for job seekers -->
+            {% if session.logged_in and session.role == 'job_seeker' %}
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if already_applied %}
+                        <div class="alert alert-success flex-fill mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            You have already applied to this job.
+                            <a href="{{ url_for('my_applications') }}" class="ms-2 fw-bold">View My Applications</a>
+                        </div>
+                    {% elif job.is_active %}
+                        <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn btn-success btn-lg flex-fill">
+                            <i class="fas fa-paper-plane me-1"></i> Apply Now
+                        </a>
+                    {% else %}
+                        <div class="alert alert-warning flex-fill mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            This job is no longer accepting applications.
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('save_job', job_id=job.id) }}">
+                        <button type="submit" class="btn {% if is_saved %}btn-warning{% else %}btn-outline-primary{% endif %} btn-lg" style="{% if is_saved %}color: white;{% endif %}" title="{% if is_saved %}Unsave{% else %}Save{% endif %}">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </form>
+                </div>
+            {% elif not session.logged_in %}
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <a href="{{ url_for('login') }}" class="fw-bold">Login</a> or
+                    <a href="{{ url_for('register') }}" class="fw-bold">register</a> as a job seeker to apply.
+                </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{{ url_for('jobs') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to All Jobs
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

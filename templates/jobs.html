@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Jobs{% endblock %}
+
+{% block content %}
+    <h2 class="fw-bold mb-4"><i class="fas fa-search text-primary me-2"></i>Browse Jobs</h2>
+
+    <!-- Filter form -->
+    <form method="GET" action="{{ url_for('jobs') }}" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="q" value="{{ search or '' }}" placeholder="Search title, company, or description...">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="location" value="{{ location or '' }}" placeholder="Location">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="job_type">
+                    <option value="">All Types</option>
+                    {% for t in job_types %}
+                        <option value="{{ t }}" {% if t == job_type %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="category">
+                    <option value="">All Categories</option>
+                    {% for c in categories %}
+                        <option value="{{ c }}" {% if c == category %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="{{ url_for('jobs') }}" class="btn btn-secondary" title="Clear">
+                    <i class="fas fa-redo"></i>
+                </a>
+            </div>
+        </div>
+
+        {% if session.logged_in and session.role == 'job_seeker' %}
+            <div class="mt-2">
+                <button type="button" class="btn btn-warning btn-sm" style="color: white;" data-bs-toggle="modal" data-bs-target="#alertModal">
+                    <i class="fas fa-bell me-1"></i> Save this search as alert
+                </button>
+            </div>
+        {% endif %}
+    </form>
+
+    <p class="text-muted small mb-3">Found <strong>{{ jobs|length }}</strong> job(s)</p>
+
+    {% if jobs %}
+        <div class="row g-3">
+            {% for job in jobs %}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div class="company-avatar {% if loop.index % 3 == 0 %}alt{% elif loop.index % 3 == 1 %}gold{% endif %}">{{ job.company[0]|upper }}</div>
+                                <div class="flex-grow-1 min-w-0">
+                                    <h5 class="fw-bold mb-1 text-truncate">
+                                        <a href="{{ url_for('view_job', job_id=job.id) }}" style="text-decoration: none; color: inherit;">
+                                            {{ job.title }}
+                                        </a>
+                                    </h5>
+                                    <p class="text-muted mb-1 small"><i class="fas fa-building me-1"></i>{{ job.company }}</p>
+                                    <p class="text-muted mb-0 small"><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge" style="background: #e0e7ff; color: #4338ca;">
+                                    <i class="fas fa-clock me-1"></i>{{ job.job_type }}
+                                </span>
+                                <span class="badge" style="background: #d1fae5; color: #065f46;">
+                                    <i class="fas fa-tag me-1"></i>{{ job.category }}
+                                </span>
+                                {% if job.salary %}
+                                    <span class="badge" style="background: #fef3c7; color: #b45309;">
+                                        <i class="fas fa-dollar-sign me-1"></i>{{ job.salary }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 pb-3 px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar me-1"></i>{{ job.created_at.strftime('%b %d, %Y') }}
+                                </small>
+                                <a href="{{ url_for('view_job', job_id=job.id) }}" class="btn btn-primary btn-sm">
+                                    View <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div style="font-size: 4rem; opacity: 0.4;">🔍</div>
+            <h5 class="mt-3 fw-bold">No jobs found</h5>
+            <p class="text-muted mb-4">Try adjusting your filters or search terms.</p>
+            <a href="{{ url_for('jobs') }}" class="btn btn-primary">
+                <i class="fas fa-redo me-1"></i> Clear Filters
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Alert Modal -->
+    {% if session.logged_in and session.role == 'job_seeker' %}
+    <div class="modal fade" id="alertModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #f97316); color: white; border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title"><i class="fas fa-bell me-2"></i>Create Job Alert</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('new_alert') }}">
+                    <div class="modal-body p-4">
+                        <p class="text-muted small">Get notified when new jobs matching these filters are posted.</p>
+                        <div class="mb-3">
+                            <label class="form-label">Keyword</label>
+                            <input type="text" class="form-control" name="keyword" value="{{ search or '' }}" placeholder="e.g., Python Developer">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="location" value="{{ location or '' }}" placeholder="e.g., Addis Ababa">
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Job Type</label>
+                                <select class="form-select" name="job_type">
+                                    <option value="">Any</option>
+                                    {% for t in job_types %}
+                                        <option value="{{ t }}" {% if t == job_type %}selected{% endif %}>{{ t }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category">
+                                    <option value="">Any</option>
+                                    {% for c in categories %}
+                                        <option value="{{ c }}" {% if c == category %}selected{% endif %}>{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-warning w-100 py-2" style="color: white;">
+                            <i class="fas fa-bell me-1"></i> Create Alert
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

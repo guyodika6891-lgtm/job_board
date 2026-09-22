@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Job{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="text-center mb-4">
+                <div style="font-size: 3rem;">✏️</div>
+                <h2 class="fw-bold mt-2">Edit Job</h2>
+                <p class="text-muted">Update job details</p>
+            </div>
+
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label"><i class="fas fa-heading me-1 text-primary"></i> Job Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ job.title }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="company" class="form-label"><i class="fas fa-building me-1 text-primary"></i> Company *</label>
+                        <input type="text" class="form-control" id="company" name="company" value="{{ job.company }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="location" class="form-label"><i class="fas fa-map-marker-alt me-1 text-primary"></i> Location *</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ job.location }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="salary" class="form-label"><i class="fas fa-dollar-sign me-1 text-primary"></i> Salary</label>
+                        <input type="text" class="form-control" id="salary" name="salary" value="{{ job.salary or '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="job_type" class="form-label"><i class="fas fa-clock me-1 text-primary"></i> Job Type *</label>
+                        <select class="form-select" id="job_type" name="job_type" required>
+                            {% for t in ['Full-time', 'Part-time', 'Contract', 'Remote', 'Internship'] %}
+                                <option value="{{ t }}" {% if job.job_type == t %}selected{% endif %}>{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="category" class="form-label"><i class="fas fa-tag me-1 text-primary"></i> Category *</label>
+                        <input type="text" class="form-control" id="category" name="category" value="{{ job.category }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="description" class="form-label"><i class="fas fa-align-left me-1 text-primary"></i> Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="6" required>{{ job.description }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="requirements" class="form-label"><i class="fas fa-list-check me-1 text-primary"></i> Requirements</label>
+                        <textarea class="form-control" id="requirements" name="requirements" rows="4">{{ job.requirements or '' }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if job.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                <strong>Active</strong> — accepting new applications
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mt-4">
+                    <button type="submit" class="btn btn-primary flex-fill py-3">
+                        <i class="fas fa-check me-1"></i> Update Job
+                    </button>
+                    <a href="{{ url_for('view_job', job_id=job.id) }}" class="btn btn-secondary flex-fill py-3">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h2 class="fw-bold mb-0"><i class="fas fa-user-circle text-primary me-2"></i>My Profile</h2>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Edit Profile
+                </a>
+            </div>
+
+            <!-- Profile card -->
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4 flex-wrap gap-3">
+                        {% if user.profile_picture %}
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_picture) }}"
+                                 alt="{{ user.username }}"
+                                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                        {% else %}
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 100px; height: 100px; font-size: 2.5rem; font-weight: 700; background: var(--gradient-hero); color: white;">
+                                {{ user.username[0]|upper }}
+                            </div>
+                        {% endif %}
+
+                        <div class="flex-grow-1 min-w-0">
+                            <h3 class="mb-1 fw-bold">{{ user.username }}</h3>
+
+                            {% if user.role == 'job_seeker' and user.headline %}
+                                <p class="text-muted mb-2" style="font-size: 1.05rem;">{{ user.headline }}</p>
+                            {% endif %}
+
+                            {% if user.role == 'employer' and user.company_name %}
+                                <p class="text-muted mb-2" style="font-size: 1.05rem;">
+                                    <i class="fas fa-building me-1"></i>{{ user.company_name }}
+                                </p>
+                            {% endif %}
+
+                            <div class="d-flex gap-2 flex-wrap mb-2">
+                                {% if user.role == 'employer' %}
+                                    <span class="role-badge role-employer">
+                                        <i class="fas fa-building me-1"></i>Employer
+                                    </span>
+                                {% else %}
+                                    <span class="role-badge role-seeker">
+                                        <i class="fas fa-user-graduate me-1"></i>Job Seeker
+                                    </span>
+                                {% endif %}
+
+                                {% if user.availability %}
+                                    <span class="badge" style="background: #d1fae5; color: #065f46;">
+                                        <i class="fas fa-circle" style="font-size: 0.5rem;"></i> {{ user.availability }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex gap-3 flex-wrap text-muted small">
+                                {% if user.location %}
+                                    <span><i class="fas fa-map-marker-alt me-1"></i>{{ user.location }}</span>
+                                {% endif %}
+                                {% if user.phone %}
+                                    <span><i class="fas fa-phone me-1"></i>{{ user.phone }}</span>
+                                {% endif %}
+                                <span><i class="fas fa-envelope me-1"></i>{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.bio %}
+                        <hr>
+                        <h5 class="fw-bold mb-2"><i class="fas fa-align-left text-primary me-2"></i>About</h5>
+                        <p style="white-space: pre-wrap; line-height: 1.7; margin: 0;">{{ user.bio }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if user.role == 'job_seeker' %}
+                <!-- Skills -->
+                {% if user.skills %}
+                    <div class="card mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-tags text-success me-2"></i>Skills</h5>
+                            <div class="d-flex gap-2 flex-wrap">
+                                {% for skill in user.skills_list() %}
+                                    <span class="badge" style="background: #e0e7ff; color: #4338ca; padding: 8px 16px; font-size: 0.85rem;">
+                                        {{ skill }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Experience & Education -->
+                <div class="row g-3 mb-4">
+                    {% if user.experience_years %}
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3"><i class="fas fa-briefcase text-warning me-2"></i>Experience</h5>
+                                    <h3 class="mb-0 fw-bold" style="color: #b45309;">{{ user.experience_years }} year{{ 's' if user.experience_years != 1 else '' }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if user.education %}
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3"><i class="fas fa-graduation-cap text-primary me-2"></i>Education</h5>
+                                    <p class="mb-0">{{ user.education }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Company Details for Employer -->
+                {% if user.company_description or user.company_website or user.company_location or user.company_size or user.industry %}
+                    <div class="card mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-building text-success me-2"></i>Company Details</h5>
+                            <div class="row g-3">
+                                {% if user.company_location %}
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Location</small>
+                                        <p class="mb-0 fw-bold"><i class="fas fa-map-marker-alt me-1"></i>{{ user.company_location }}</p>
+                                    </div>
+                                {% endif %}
+                                {% if user.company_size %}
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Company Size</small>
+                                        <p class="mb-0 fw-bold"><i class="fas fa-users me-1"></i>{{ user.company_size }} employees</p>
+                                    </div>
+                                {% endif %}
+                                {% if user.industry %}
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Industry</small>
+                                        <p class="mb-0 fw-bold"><i class="fas fa-industry me-1"></i>{{ user.industry }}</p>
+                                    </div>
+                                {% endif %}
+                                {% if user.company_website %}
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Website</small>
+                                        <p class="mb-0 fw-bold">
+                                            <a href="{{ user.company_website }}" target="_blank" style="color: #4f46e5;">
+                                                <i class="fas fa-globe me-1"></i>Visit Website
+                                            </a>
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                {% if user.company_description %}
+                                    <div class="col-12">
+                                        <small class="text-muted">About the Company</small>
+                                        <p class="mb-0" style="white-space: pre-wrap; line-height: 1.7;">{{ user.company_description }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Social Links -->
+            {% if user.linkedin or user.github or user.website %}
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-link text-primary me-2"></i>Connect</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if user.linkedin %}
+                                <a href="{{ user.linkedin }}" target="_blank" class="social-link linkedin">
+                                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                                </a>
+                            {% endif %}
+                            {% if user.github %}
+                                <a href="{{ user.github }}" target="_blank" class="social-link github">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            {% endif %}
+                            {% if user.website %}
+                                <a href="{{ user.website }}" target="_blank" class="social-link website">
+                                    <i class="fas fa-globe"></i> Website
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Stats + Actions -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 text-center" style="background: #f8fafc;">
+                        <div class="card-body p-4">
+                            <small class="text-muted">Member Since</small>
+                            <h5 class="mb-0 mt-2 fw-bold">{{ user.created_at.strftime('%b %Y') }}</h5>
+                        </div>
+                    </div>
+                </div>
+                {% if user.role == 'employer' %}
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: #e0e7ff;">
+                            <div class="card-body p-4">
+                                <small class="text-muted"><i class="fas fa-briefcase me-1"></i>Jobs Posted</small>
+                                <h5 class="mb-0 mt-2 fw-bold text-primary">{{ total_jobs }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: #d1fae5;">
+                            <div class="card-body p-4">
+                                <small class="text-muted"><i class="fas fa-file-alt me-1"></i>Applications</small>
+                                <h5 class="mb-0 mt-2 fw-bold text-success">{{ total_applications }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: #d1fae5;">
+                            <div class="card-body p-4">
+                                <small class="text-muted"><i class="fas fa-file-alt me-1"></i>Applications</small>
+                                <h5 class="mb-0 mt-2 fw-bold text-success">{{ total_applications }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 text-center" style="background: #fef3c7;">
+                            <div class="card-body p-4">
+                                <small class="text-muted"><i class="fas fa-bookmark me-1"></i>Saved Jobs</small>
+                                <h5 class="mb-0 mt-2 fw-bold" style="color: #b45309;">{{ saved_jobs }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('index') }}" class="btn btn-primary flex-fill">
+                    <i class="fas fa-home me-1"></i> Home
+                </a>
+                <a href="{{ url_for('jobs') }}" class="btn btn-success flex-fill">
+                    <i class="fas fa-search me-1"></i> Browse Jobs
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger flex-fill">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .social-link.linkedin { background: #0a66c2; }
+    .social-link.github { background: #24292e; }
+    .social-link.website { background: var(--gradient-primary); }
+    .social-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        color: white;
+    }
+</style>
+{% endblock %}

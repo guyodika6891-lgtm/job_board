@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Job Board{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="text-center mb-4">
+                <div style="font-size: 3rem;">📝</div>
+                <h2 class="fw-bold mt-2">Create Account</h2>
+                <p class="text-muted">Join as an employer or job seeker</p>
+            </div>
+
+            <form method="POST" id="registerForm">
+                <!-- Role Selection -->
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-user-tag me-1 text-primary"></i> I want to... *</label>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="role" id="role_seeker" value="job_seeker"
+                                   {% if role != 'employer' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary w-100 py-3" for="role_seeker">
+                                <i class="fas fa-user-graduate me-2"></i> Find a Job
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="role" id="role_employer" value="employer"
+                                   {% if role == 'employer' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary w-100 py-3" for="role_employer">
+                                <i class="fas fa-building me-2"></i> Hire Talent
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label"><i class="fas fa-user me-1 text-primary"></i> Username</label>
+                    <input type="text" class="form-control" id="username" name="username"
+                           value="{{ username or '' }}" placeholder="Choose a username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label"><i class="fas fa-envelope me-1 text-primary"></i> Email</label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           value="{{ email or '' }}" placeholder="your@email.com" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label"><i class="fas fa-lock me-1 text-primary"></i> Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Minimum 6 characters" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirm_password" class="form-label"><i class="fas fa-lock me-1 text-primary"></i> Confirm</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                               placeholder="Repeat password" required>
+                    </div>
+                </div>
+
+                <!-- Company fields (shown for employers only) -->
+                <div id="companyFields" style="display: {% if role == 'employer' %}block{% else %}none{% endif %};">
+                    <div class="mb-3">
+                        <label for="company_name" class="form-label"><i class="fas fa-building me-1 text-primary"></i> Company Name *</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name"
+                               value="{{ company_name or '' }}" placeholder="Your company name">
+                    </div>
+                    <div class="mb-4">
+                        <label for="company_description" class="form-label"><i class="fas fa-align-left me-1 text-primary"></i> Company Description</label>
+                        <textarea class="form-control" id="company_description" name="company_description" rows="3"
+                                  placeholder="Tell us about your company...">{{ company_description or '' }}</textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                    <i class="fas fa-user-plus me-1"></i> Create Account
+                </button>
+            </form>
+
+            <p class="text-center mt-4 mb-0">
+                Already have an account?
+                <a href="{{ url_for('login') }}" class="text-primary fw-bold text-decoration-none">Login here</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const roleRadios = document.querySelectorAll('input[name="role"]');
+    const companyFields = document.getElementById('companyFields');
+    roleRadios.forEach(function (r) {
+        r.addEventListener('change', function () {
+            if (this.value === 'employer') {
+                companyFields.style.display = 'block';
+            } else {
+                companyFields.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

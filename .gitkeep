@@ -1,0 +1,6 @@
+cd C:\Users\ADMIN\job_board
+
+# Create .gitkeep files so upload folders are tracked by Git
+type nul > static\uploads\.gitkeep
+type nul > static\uploads\resumes\.gitkeep
+type nul > static\uploads\profiles\.gitkeep

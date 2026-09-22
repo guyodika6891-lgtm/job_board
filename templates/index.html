@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Job Board{% endblock %}
+
+{% block content %}
+    {% if role is none %}
+        <!-- WELCOME SCREEN -->
+        <div class="text-center py-5">
+            <div style="font-size: clamp(3rem, 10vw, 6rem); background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; line-height: 1;">💼</div>
+            <h1 class="fw-bold mt-4 mb-3" style="font-size: clamp(1.5rem, 5vw, 2.75rem); letter-spacing: -1.5px;">Find Your Dream Job</h1>
+            <p class="lead text-muted mb-5 mx-auto" style="max-width: 600px; font-size: clamp(0.95rem, 2vw, 1.15rem);">
+                Browse thousands of jobs from top companies. Or post a job and find the perfect candidate.
+            </p>
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <a href="{{ url_for('jobs') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i> Browse Jobs
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-rocket me-2"></i> Get Started
+                </a>
+            </div>
+        </div>
+    {% elif role == 'employer' %}
+        <!-- EMPLOYER DASHBOARD WITH ANALYTICS -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1 fw-bold" style="font-size: clamp(1.4rem, 4vw, 1.85rem);">
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i>Employer Dashboard
+                </h2>
+                <small class="text-muted">Welcome back, {{ session.username }}!</small>
+            </div>
+            <a href="{{ url_for('new_job') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Post New Job
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 h-100" style="background: var(--gradient-primary); color: white;">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 1px;">My Jobs</p>
+                                <h2 class="mb-0 fw-bold" style="font-size: 2rem;">{{ my_jobs_count }}</h2>
+                            </div>
+                            <div style="font-size: 2rem; opacity: 0.4;"><i class="fas fa-briefcase"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 h-100" style="background: var(--gradient-emerald); color: white;">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 1px;">Applications</p>
+                                <h2 class="mb-0 fw-bold" style="font-size: 2rem;">{{ my_applications_count }}</h2>
+                            </div>
+                            <div style="font-size: 2rem; opacity: 0.4;"><i class="fas fa-file-alt"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 h-100" style="background: var(--gradient-gold); color: white;">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 1px;">Active Jobs</p>
+                                <h2 class="mb-0 fw-bold" style="font-size: 2rem;">{{ active_jobs_count }}</h2>
+                            </div>
+                            <div style="font-size: 2rem; opacity: 0.4;"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 h-100" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white;">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 1px;">Avg/Job</p>
+                                <h2 class="mb-0 fw-bold" style="font-size: 2rem;">{{ avg_applications }}</h2>
+                            </div>
+                            <div style="font-size: 2rem; opacity: 0.4;"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Breakdown + Doughnut -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-clipboard-check text-primary me-2"></i>Application Status</h5>
+                        <div class="row g-2 text-center">
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #fef3c7;">
+                                    <h4 class="fw-bold mb-0" style="color: #b45309;">{{ pending_count }}</h4>
+                                    <small class="text-muted">⏳ Pending</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #dbeafe;">
+                                    <h4 class="fw-bold mb-0" style="color: #1e40af;">{{ reviewed_count }}</h4>
+                                    <small class="text-muted">👁️ Reviewed</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #d1fae5;">
+                                    <h4 class="fw-bold mb-0" style="color: #065f46;">{{ accepted_count }}</h4>
+                                    <small class="text-muted">✅ Accepted</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #fee2e2;">
+                                    <h4 class="fw-bold mb-0" style="color: #991b1b;">{{ rejected_count }}</h4>
+                                    <small class="text-muted">❌ Rejected</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie text-primary me-2"></i>Applications by Job</h5>
+                        {% if job_labels %}
+                            <div style="position: relative; height: 220px;">
+                                <canvas id="jobChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5 text-muted">
+                                <div style="font-size: 3rem; opacity: 0.4;">📊</div>
+                                <p class="mt-3 mb-0">No applications yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="fas fa-chart-line text-primary me-2"></i>Applications — Last 7 Days</h5>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        {% if recent_applications %}
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-clock text-primary me-2"></i>Recent Applications</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Applicant</th>
+                                    <th>Job</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Applied</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in recent_applications %}
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-user-circle text-primary me-2"></i>
+                                            <strong>{{ app.applicant.username }}</strong>
+                                        </td>
+                                        <td>{{ app.job.title[:30] }}{% if app.job.title|length > 30 %}...{% endif %}</td>
+                                        <td class="text-center">
+                                            {% if app.status == 'pending' %}
+                                                <span class="badge" style="background: #fef3c7; color: #b45309;">Pending</span>
+                                            {% elif app.status == 'reviewed' %}
+                                                <span class="badge" style="background: #dbeafe; color: #1e40af;">Reviewed</span>
+                                            {% elif app.status == 'accepted' %}
+                                                <span class="badge" style="background: #d1fae5; color: #065f46;">Accepted</span>
+                                            {% elif app.status == 'rejected' %}
+                                                <span class="badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><small class="text-muted">{{ app.applied_at.strftime('%b %d') }}</small></td>
+                                        <td class="text-center">
+                                            <a href="{{ url_for('view_application', app_id=app.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- JOB SEEKER DASHBOARD -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1 fw-bold" style="font-size: clamp(1.4rem, 4vw, 1.85rem);">
+                    <i class="fas fa-tachometer-alt text-success me-2"></i>Job Seeker Dashboard
+                </h2>
+                <small class="text-muted">Welcome back, {{ session.username }}!</small>
+            </div>
+            <a href="{{ url_for('jobs') }}" class="btn btn-success">
+                <i class="fas fa-search me-1"></i> Find Jobs
+            </a>
+        </div>
+
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="card border-0" style="background: var(--gradient-emerald); color: white;">
+                    <div class="card-body p-4">
+                        <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 1px;">My Applications</p>
+                        <h2 class="mb-0 fw-bold" style="font-size: 2.25rem;">{{ my_applications_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0" style="background: var(--gradient-gold); color: white;">
+                    <div class="card-body p-4">
+                        <p class="mb-1 text-white-50 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 1px;">Saved Jobs</p>
+                        <h2 class="mb-0 fw-bold" style="font-size: 2.25rem;">{{ saved_jobs_count }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Recent Jobs (shown to everyone) -->
+    <div class="mt-5">
+        <h3 class="fw-bold mb-4"><i class="fas fa-fire text-warning me-2"></i>Recent Jobs</h3>
+        {% if jobs %}
+            <div class="row g-3">
+                {% for job in jobs %}
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-start gap-3 mb-3">
+                                    <div class="company-avatar {% if loop.index % 3 == 0 %}alt{% elif loop.index % 3 == 1 %}gold{% endif %}">{{ job.company[0]|upper }}</div>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <h5 class="fw-bold mb-1 text-truncate">
+                                            <a href="{{ url_for('view_job', job_id=job.id) }}" style="text-decoration: none; color: inherit;">
+                                                {{ job.title }}
+                                            </a>
+                                        </h5>
+                                        <p class="text-muted mb-1 small"><i class="fas fa-building me-1"></i>{{ job.company }}</p>
+                                        <p class="text-muted mb-0 small"><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge" style="background: #e0e7ff; color: #4338ca;">
+                                        <i class="fas fa-clock me-1"></i>{{ job.job_type }}
+                                    </span>
+                                    <span class="badge" style="background: #d1fae5; color: #065f46;">
+                                        <i class="fas fa-tag me-1"></i>{{ job.category }}
+                                    </span>
+                                    {% if job.salary %}
+                                        <span class="badge" style="background: #fef3c7; color: #b45309;">
+                                            <i class="fas fa-dollar-sign me-1"></i>{{ job.salary }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0 pb-3 px-4">
+                                <a href="{{ url_for('view_job', job_id=job.id) }}" class="btn btn-primary w-100 btn-sm">
+                                    View Job <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div style="font-size: 4rem; opacity: 0.4;">📭</div>
+                <h5 class="mt-3 fw-bold">No jobs posted yet</h5>
+                <p class="text-muted">Check back soon!</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if role == 'employer' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ===== Applications by Job (Doughnut) =====
+    const jobLabels = {{ job_labels | tojson }};
+    const jobData = {{ job_data | tojson }};
+
+    if (jobLabels.length > 0 && document.getElementById('jobChart')) {
+        const jobCtx = document.getElementById('jobChart').getContext('2d');
+        new Chart(jobCtx, {
+            type: 'doughnut',
+            data: {
+                labels: jobLabels,
+                datasets: [{
+                    data: jobData,
+                    backgroundColor: [
+                        '#4f46e5', '#10b981', '#f59e0b', '#ec4899',
+                        '#06b6d4', '#8b5cf6', '#ef4444', '#84cc16'
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 12,
+                            font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        padding: 12,
+                        cornerRadius: 10
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== Applications Over Last 7 Days (Line) =====
+    const dailyLabels = {{ daily_labels | tojson }};
+    const dailyData = {{ daily_data | tojson }};
+
+    if (document.getElementById('dailyChart')) {
+        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        const gradient = dailyCtx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+        gradient.addColorStop(1, 'rgba(79, 70, 229, 0.02)');
+
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Applications',
+                    data: dailyData,
+                    borderColor: '#4f46e5',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 9
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        padding: 12,
+                        cornerRadius: 10,
+                        titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '700' },
+                        bodyFont: { family: 'Plus Jakarta Sans', size: 12 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans' } },
+                        grid: { color: 'rgba(0,0,0,0.04)' }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Plus Jakarta Sans' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}

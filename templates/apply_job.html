@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Apply - {{ job.title }}{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-4">
+                <div style="font-size: 3rem;">📄</div>
+                <h2 class="fw-bold mt-2">Apply for Job</h2>
+                <p class="text-muted">Submit your application for <strong>{{ job.title }}</strong> at {{ job.company }}</p>
+            </div>
+
+            <div class="card mb-4" style="background: linear-gradient(135deg, #e0e7ff, #d1fae5);">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">{{ job.title }}</h5>
+                    <p class="text-muted mb-0 small">
+                        <i class="fas fa-building me-1"></i>{{ job.company }} &middot;
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label for="resume" class="form-label"><i class="fas fa-file-pdf me-1 text-primary"></i> Resume * (PDF, DOC, or DOCX)</label>
+                    <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                    <div class="form-text">Maximum size: 10 MB</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="cover_letter" class="form-label"><i class="fas fa-envelope-open-text me-1 text-primary"></i> Cover Letter</label>
+                    <textarea class="form-control" id="cover_letter" name="cover_letter" rows="6"
+                              placeholder="Tell the employer why you're a great fit for this role...">{{ cover_letter or '' }}</textarea>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-success flex-fill py-3">
+                        <i class="fas fa-paper-plane me-1"></i> Submit Application
+                    </button>
+                    <a href="{{ url_for('view_job', job_id=job.id) }}" class="btn btn-secondary flex-fill py-3">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

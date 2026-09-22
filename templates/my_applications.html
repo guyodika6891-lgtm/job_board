@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="mb-1 fw-bold"><i class="fas fa-file-alt text-success me-2"></i>My Applications</h2>
+            <small class="text-muted">{{ applications|length }} application(s) submitted</small>
+        </div>
+        <a href="{{ url_for('jobs') }}" class="btn btn-success">
+            <i class="fas fa-search me-1"></i> Browse More Jobs
+        </a>
+    </div>
+
+    {% if applications %}
+        <div class="row g-3">
+            {% for app in applications %}
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                                <div class="flex-grow-1 min-w-0">
+                                    <h5 class="fw-bold mb-1">
+                                        <a href="{{ url_for('view_job', job_id=app.job.id) }}" style="text-decoration: none; color: inherit;">
+                                            {{ app.job.title }}
+                                        </a>
+                                    </h5>
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-building me-1"></i>{{ app.job.company }} &middot;
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ app.job.location }}
+                                    </p>
+                                    <div class="d-flex gap-2 flex-wrap mb-2">
+                                        {% if app.status == 'pending' %}
+                                            <span class="badge" style="background: #fef3c7; color: #b45309;">
+                                                <i class="fas fa-clock me-1"></i>Pending Review
+                                            </span>
+                                        {% elif app.status == 'reviewed' %}
+                                            <span class="badge" style="background: #dbeafe; color: #1e40af;">
+                                                <i class="fas fa-eye me-1"></i>Reviewed
+                                            </span>
+                                        {% elif app.status == 'accepted' %}
+                                            <span class="badge" style="background: #d1fae5; color: #065f46;">
+                                                <i class="fas fa-check-circle me-1"></i>Accepted 🎉
+                                            </span>
+                                        {% elif app.status == 'rejected' %}
+                                            <span class="badge" style="background: #fee2e2; color: #991b1b;">
+                                                <i class="fas fa-times-circle me-1"></i>Rejected
+                                            </span>
+                                        {% endif %}
+                                        <span class="badge" style="background: #e0e7ff; color: #4338ca;">
+                                            <i class="fas fa-clock me-1"></i>{{ app.job.job_type }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar me-1"></i>Applied {{ app.applied_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{{ url_for('view_job', job_id=app.job.id) }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i> View Job
+                                    </a>
+                                    <form method="POST" action="{{ url_for('withdraw_application', app_id=app.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Withdraw this application?')">
+                                            <i class="fas fa-times me-1"></i> Withdraw
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div style="font-size: 4rem; opacity: 0.4;">📭</div>
+            <h5 class="mt-3 fw-bold">No applications yet</h5>
+            <p class="text-muted mb-4">Start applying to jobs that match your skills!</p>
+            <a href="{{ url_for('jobs') }}" class="btn btn-success">
+                <i class="fas fa-search me-1"></i> Browse Jobs
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
