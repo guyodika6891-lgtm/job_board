@@ -46,5 +46,5 @@ A full-featured job board platform where employers post jobs and job seekers app
 
 1. Clone:
    ```bash
-   git clone https://github.com/username/job_board.git
+   git clone https://github.com/guyodika6891-lgtm/job_board.git
    cd job_board
