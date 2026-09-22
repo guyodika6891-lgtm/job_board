@@ -40,7 +40,7 @@ A full-featured job board platform where employers post jobs and job seekers app
 
 ## 🚀 Live Demo
 
-🔗 [View Live App](https://job-board.onrender.com)
+🔗 [View Live App](https://job-board-113z.onrender.com)
 
 ## 🏁 Local Setup
 
